@@ -12,7 +12,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-@Controller('api/v1/users')
+@Controller(`${process.env.API_PREFIX}/users`)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -40,7 +40,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  async delete(@Param('id', new ParseUUIDPipe()) id: string) {
-    return await this.usersService.delete(id);
+  async remove(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.usersService.remove(id);
   }
 }

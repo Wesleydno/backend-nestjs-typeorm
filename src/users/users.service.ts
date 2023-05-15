@@ -47,7 +47,7 @@ export class UsersService {
     throw new HttpException('User not found', HttpStatus.NOT_FOUND);
   }
 
-  async delete(id: string) {
+  async remove(id: string) {
     const deletedUser = await this.usersRepository.delete(id);
     if (!deletedUser.affected) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);

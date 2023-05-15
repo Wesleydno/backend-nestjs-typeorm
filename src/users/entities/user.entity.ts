@@ -39,4 +39,7 @@ export class UsersEntity {
   hasPassword() {
     this.password = hashSync(this.password, 10);
   }
+
+  @Column()
+  refreshToken: string;
 }
