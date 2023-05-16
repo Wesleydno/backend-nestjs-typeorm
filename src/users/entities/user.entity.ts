@@ -40,6 +40,6 @@ export class UsersEntity {
     this.password = hashSync(this.password, 10);
   }
 
-  @Column()
+  @Column({ nullable: true })
   refreshToken: string;
 }
