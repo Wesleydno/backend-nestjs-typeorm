@@ -6,7 +6,6 @@ import { UsersService } from 'users/users.service';
 import { UsersEntity } from '../users/entities/user.entity';
 import { AuthDto } from './dto/auth.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { UpdateUserDto } from '../users/dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -16,26 +15,21 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async validateUser(
-    email: string,
-    password: string,
-  ): Promise<Partial<UsersEntity> | null> {
-    const user = await this.usersService.findByEmail(email);
+  async login(data: AuthDto) {
+    const user = await this.usersService.findByEmail(data.email);
 
-    if (!user) return null;
+    if (!user) throw new BadRequestException('User does not exist');
 
-    const isPasswordsValid = compareSync(password, user.password);
+    const isPasswordsValid = compareSync(data.password, user.password);
 
-    if (!isPasswordsValid) return null;
+    if (!isPasswordsValid)
+      throw new BadRequestException('Password is incorrect');
 
-    return user;
-  }
+    const tokens = await this.getTokens(user);
 
-  async login(user: AuthDto) {
-    console.log(user);
-    // const payload = { sub: user.id, email: user.email };
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
 
-    // console.log(payload);
+    return tokens;
   }
 
   async register(createUserDto: CreateUserDto) {
@@ -75,5 +69,9 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  async logout(id: string) {
+    return this.usersService.update(id, { refreshToken: null });
   }
 }
