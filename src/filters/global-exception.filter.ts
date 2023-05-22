@@ -5,15 +5,21 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { HttpMessages } from './helpers/http-messages.helper';
+import { HttpMessages } from '../helpers/http-messages.helper';
 
-@Catch(HttpException)
-export class GenericExceptionFilter implements ExceptionFilter {
+@Catch()
+export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const status = exception.getStatus();
-    const message = exception.message;
+
+    let status = 500;
+    let message = HttpMessages[status];
+
+    if (exception instanceof HttpException) {
+      status = exception.getStatus();
+      message = exception.message;
+    }
 
     response.status(status).json({
       data: {
@@ -21,7 +27,7 @@ export class GenericExceptionFilter implements ExceptionFilter {
       },
       status: {
         code: status,
-        message: HttpMessages[status] || 'UNKNOWN',
+        message: HttpMessages[status],
         success: false,
       },
     });

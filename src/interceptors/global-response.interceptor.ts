@@ -6,10 +6,10 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { HttpMessages } from './helpers/http-messages.helper';
+import { HttpMessages } from '../helpers/http-messages.helper';
 
 @Injectable()
-export class ResponseInterceptor implements NestInterceptor {
+export class GlobalResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const status = context.switchToHttp().getResponse().statusCode;
     return next.handle().pipe(

@@ -32,7 +32,7 @@ export class AuthService {
     return tokens;
   }
 
-  async register(createUserDto: CreateUserDto) {
+  async register(createUserDto: CreateUserDto): Promise<any> {
     const userExists = await this.usersService.findByEmail(createUserDto.email);
 
     if (userExists) {

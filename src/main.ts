@@ -1,23 +1,26 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ResponseInterceptor } from './response.interceptor';
-import { GenericExceptionFilter } from './generic-exception.filter';
 import { ValidationPipe } from '@nestjs/common';
-import { exceptionFactory } from 'exceptionFactory';
+
+import { ValidationException } from './ValidationException';
+import { ValidationExceptionFilter } from './filters/validation-exception.filter';
+import { GlobalResponseInterceptor } from 'interceptors/global-response.interceptor';
+import { GlobalExceptionFilter } from 'filters/global-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalInterceptors(new ResponseInterceptor());
+
+  app.useGlobalInterceptors(new GlobalResponseInterceptor());
+
+  app.useGlobalFilters(new GlobalExceptionFilter());
+
+  app.useGlobalFilters(new ValidationExceptionFilter());
 
   app.useGlobalPipes(
     new ValidationPipe({
-      exceptionFactory: (errors) => {
-        throw exceptionFactory(errors);
-      },
+      exceptionFactory: (errors) => new ValidationException(errors),
     }),
   );
-
-  app.useGlobalFilters(new GenericExceptionFilter());
 
   await app.listen(process.env.API_PORT);
 }
