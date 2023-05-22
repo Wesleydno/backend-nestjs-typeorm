@@ -71,7 +71,7 @@ export class AuthService {
     };
   }
 
-  async logout(id: string) {
-    return this.usersService.update(id, { refreshToken: null });
+  async logout(id: string): Promise<void> {
+    this.usersService.update(id, { refreshToken: null });
   }
 }

@@ -5,7 +5,7 @@ import {
   Body,
   HttpCode,
   Get,
-  Req,
+  Request,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
@@ -28,11 +28,10 @@ export class AuthController {
     return await this.authService.register(createUserDto);
   }
 
-  @UseGuards(AuthGuard('jwt-refresh'))
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(204)
   @Get('logout')
-  logout(@Req() req: Request) {
-    console.log(req)
- 
-    // this.authService.logout(req.user['id']);
+  logout(@Request() req) {
+    this.authService.logout(req.user.sub);
   }
 }

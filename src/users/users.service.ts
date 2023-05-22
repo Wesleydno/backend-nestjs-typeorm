@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { UsersEntity } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+
+export type User = any;
 @Injectable()
 export class UsersService {
   constructor(

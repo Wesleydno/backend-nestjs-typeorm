@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 
-import { ValidationException } from './ValidationException';
+import { ValidationException } from './exceptions/validation.exception';
 import { ValidationExceptionFilter } from './filters/validation-exception.filter';
 import { GlobalResponseInterceptor } from 'interceptors/global-response.interceptor';
 import { GlobalExceptionFilter } from 'filters/global-exception.filter';

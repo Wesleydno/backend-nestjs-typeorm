@@ -1,6 +1,6 @@
 import { Catch, ArgumentsHost } from '@nestjs/common';
 import { BaseExceptionFilter } from '@nestjs/core';
-import { ValidationException } from '../ValidationException';
+import { ValidationException } from '../exceptions/validation.exception';
 import { HttpMessages } from 'helpers/http-messages.helper';
 
 @Catch(ValidationException)
