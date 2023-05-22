@@ -1,7 +1,11 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { compareSync } from 'bcrypt';
+import * as argon2 from 'argon2';
 import { UsersService } from 'users/users.service';
 import { UsersEntity } from '../users/entities/user.entity';
 import { AuthDto } from './dto/auth.dto';
@@ -20,9 +24,9 @@ export class AuthService {
 
     if (!user) throw new BadRequestException('User does not exist');
 
-    const isPasswordsValid = compareSync(data.password, user.password);
+    const passwordMatches = await argon2.verify(user.password, data.password);
 
-    if (!isPasswordsValid)
+    if (!passwordMatches)
       throw new BadRequestException('Password is incorrect');
 
     const tokens = await this.getTokens(user);
@@ -39,7 +43,11 @@ export class AuthService {
       throw new BadRequestException('User already exists');
     }
 
-    const newUser = await this.usersService.create({ ...createUserDto });
+    const hash = await this.hashData(createUserDto.password);
+    const newUser = await this.usersService.create({
+      ...createUserDto,
+      password: hash,
+    });
 
     const tokens = await this.getTokens(newUser);
     await this.updateRefreshToken(newUser.id, tokens.refreshToken);
@@ -47,9 +55,27 @@ export class AuthService {
   }
 
   async updateRefreshToken(id: string, refreshToken: string) {
+    const hashedRefreshToken = await this.hashData(refreshToken);
     await this.usersService.update(id, {
-      refreshToken: refreshToken,
+      refreshToken: hashedRefreshToken,
     });
+  }
+
+  async refreshTokens(userId: string, refreshToken: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user || !user.refreshToken)
+      throw new ForbiddenException('Access Denied');
+
+    const refreshTokenMatches = await argon2.verify(
+      user.refreshToken,
+      refreshToken,
+    );
+    console.log(refreshTokenMatches);
+    if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
+
+    const tokens = await this.getTokens(user);
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+    return tokens;
   }
 
   async getTokens(user: UsersEntity) {
@@ -69,6 +95,10 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  hashData(data: string) {
+    return argon2.hash(data);
   }
 
   async logout(id: string): Promise<void> {

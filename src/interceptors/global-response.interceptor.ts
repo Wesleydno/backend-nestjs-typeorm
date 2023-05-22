@@ -14,7 +14,7 @@ export class GlobalResponseInterceptor implements NestInterceptor {
     const status = context.switchToHttp().getResponse().statusCode;
     return next.handle().pipe(
       map((data) => ({
-        data,
+        data: data || [],
         status: {
           code: status,
           message: HttpMessages[status] || 'UNKNOWN',

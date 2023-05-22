@@ -11,12 +11,9 @@ import { AuthController } from './auth.controller';
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    JwtModule.register({}),
     UsersModule,
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_REFRESH_TOKEN,
-      signOptions: { expiresIn: '60s' },
-    }),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, RefreshTokenStrategy],
