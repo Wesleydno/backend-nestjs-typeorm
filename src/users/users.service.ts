@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { UsersEntity } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+
+export type User = any;
 @Injectable()
 export class UsersService {
   constructor(
@@ -22,35 +24,18 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<UsersEntity | undefined> {
-    const user = await this.usersRepository.findOne({ where: { email } });
-    if (user) {
-      return user;
-    }
-    throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    return await this.usersRepository.findOne({ where: { email } });
   }
 
   async findById(id: string): Promise<UsersEntity | undefined> {
-    const user = await this.usersRepository.findOne({ where: { id } });
-    if (user) {
-      return user;
-    }
-    throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    return await this.usersRepository.findOne({ where: { id } });
   }
 
   async update(id: string, UpdateUserDto: UpdateUserDto) {
-    await this.usersRepository.update(id, UpdateUserDto);
-    const updatedUser = await this.usersRepository.findOne({ where: { id } });
-    if (updatedUser) {
-      return updatedUser;
-    }
-
-    throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    return await this.usersRepository.update(id, UpdateUserDto);
   }
 
-  async delete(id: string) {
-    const deletedUser = await this.usersRepository.delete(id);
-    if (!deletedUser.affected) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
+  async remove(id: string) {
+    return await this.usersRepository.delete(id);
   }
 }
