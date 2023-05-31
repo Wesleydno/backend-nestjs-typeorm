@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   postgres:
-    container_name: db
+    container_name: app_db
     restart: always
     image: postgres:15.1
     env_file:
@@ -12,16 +12,29 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_DATABASE}
     volumes:
-      - 'backend_db:/var/lib/postgresql/data'
+      - 'app_db:/var/lib/postgresql/data'
     ports:
       - '${DB_PORT}:5432'
     networks:
       - node_network
+
+  redis:
+    container_name: app_queue
+    image: redis:latest
+    restart: always
+    volumes:
+            - 'app_queue:/data'
+    ports:
+            - '${REDIS_PORT}:6379'
+    networks:
+            - node_network    
 
 networks:
   node_network:
     driver: bridge
 
 volumes:
-  backend_db:
+  app_db:
+    driver: local  
+  app_queue:
     driver: local  
