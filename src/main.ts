@@ -22,6 +22,8 @@ async function bootstrap() {
     }),
   );
 
+  app.setGlobalPrefix(process.env.API_PREFIX, { exclude: ['auth(.*)'] });
+
   await app.listen(process.env.API_PORT);
 }
 bootstrap();
